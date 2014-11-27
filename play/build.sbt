@@ -1,8 +1,8 @@
-name := "play-extras"
+name := "extras-play"
 
 organization := "com.gravitydev"
 
-version := "1.0-SNAPSHOT"
+version := "0.0.2-SNAPSHOT"
 
 scalaVersion := "2.11.4"
 

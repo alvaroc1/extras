@@ -1,4 +1,4 @@
-package com.gravitydev.playextras
+package com.gravitydev.extras.play
 
 import play.api.mvc._
 import org.joda.time.format.DateTimeFormat
@@ -61,7 +61,7 @@ object QueryStringBinders extends Binders {
   def stringBindable = implicitly[QueryStringBindable[String]]
 }
 
-object PathBinders {
+object PathBinders extends Binders {
   type Bindable[X] = PathBindable[X]
   def wrap [T, B : PathBindable](to: T => B, from: B => Either[String,T]): PathBindable[T] = new MappedPathBindable(to,from)
   def stringBindable = implicitly[PathBindable[String]]
