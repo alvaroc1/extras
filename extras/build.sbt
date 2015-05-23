@@ -2,14 +2,14 @@ name := "extras"
 
 organization := "com.gravitydev"
 
-version := "0.0.2-SNAPSHOT"
+version := "0.0.3-SNAPSHOT"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
 offline := true
 
 libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-reflect" % "2.11.4"
+  "org.scala-lang" % "scala-reflect" % "2.11.6"
 )
 
 resolvers ++= Seq(
