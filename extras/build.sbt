@@ -9,7 +9,7 @@ scalaVersion := "2.11.6"
 offline := true
 
 libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-reflect" % "2.11.6"
+  "org.scala-lang" % "scala-reflect" % scalaVersion.value
 )
 
 resolvers ++= Seq(
