@@ -20,8 +20,8 @@ object DirectoryWatcher {
     def close () = ws.close()
   }
   
-  private def register (ws: WatchService, path: Path): Unit = {
-    path.register(
+  private def register (ws: WatchService, path: Path, keys: scala.collection.mutable.Map[WatchKey,Path]): Unit = {
+    val key = path.register(
       ws,
       Array(
         StandardWatchEventKinds.ENTRY_CREATE, 
@@ -30,24 +30,27 @@ object DirectoryWatcher {
       ).asInstanceOf[Array[WatchEvent.Kind[_]]],
       SensitivityWatchEventModifier.HIGH 
     )
+    keys += key -> path
     
     for (f <- Files.newDirectoryStream(path).asScala if Files.isDirectory(f)) {
-      register(ws, f)
+      register(ws, f, keys)
     }
     ()
   }
   
   def watch (
     path: Path, 
-    listener: Change => Unit, 
-    filter: Change => Boolean = _ => true,
+    listener: Change => Unit,
     onException: Throwable => Unit
   )(implicit ec: ExecutionContext): Watch = {
     val ws = path.getFileSystem.newWatchService
-    register(ws, path)
     
     ec.execute(new Runnable {
       def run {
+        val keys = scala.collection.mutable.Map[WatchKey,Path]()
+        
+        register(ws, path, keys)
+        
         try {
           while (!Thread.currentThread.isInterrupted) {
             var watchKey: WatchKey = null
@@ -59,13 +62,13 @@ object DirectoryWatcher {
                 case StandardWatchEventKinds.ENTRY_DELETE => EventKind.Delete
               }
               val ctx = ev.context.asInstanceOf[Path]
-              val change = Change(ctx, kind)
+              val change = Change(keys(watchKey).resolve(ctx), kind)
               
               if (change.kind == EventKind.Create && Files.isDirectory(change.path)) {
-                register(ws, change.path)
+                register(ws, change.path, keys)
               }
               
-              if (filter(change)) listener(change)
+              listener(change)
             }
             watchKey.reset()
           }
